@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Menu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        select, button {
+            padding: 10px;
+            margin: 10px;
+            font-size: 16px;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <!-- 備注：頁面標題和提示文字 -->
+    <h1>Restaurant Menu</h1>
+    <p>Select a dish to view details:</p>
+    <!-- 備注：下拉選單，讓用戶選擇菜品 -->
+    <select id="dishSelect">
+        <option value="pizza">Pizza</option>
+        <option value="burger">Burger</option>
+        <option value="salad">Salad</option>
+    </select>
+    <!-- 備注：按鈕，點擊後觸發 fetchDish 函數發送信 GET 請求 -->
+    <button onclick="fetchDish()">Get Details</button>
+    <!-- 備注：用於顯示後端返回的菜品資訊或錯誤訊息 -->
+    <div id="result"></div>
+
+    <script>
+        // 備注：定義非同步函數 fetchDish，負責發送 GET 請求並處理回應
+        async function fetchDish() {
+            // 備注：獲取用戶選擇的菜品（例如 "pizza"）
+            const dish = document.getElementById('dishSelect').value;
+            // 備注：獲取顯示結果的 div 元素
+            const resultDiv = document.getElementById('result');
+            // 備注：顯示「Loading...」提示，表示正在請求資料
+            resultDiv.innerHTML = 'Loading...';
+
+            try {
+                // 備注：使用 fetch API 發送 GET 請求到後端，例如 http://localhost:3000/menu/pizza
+                const response = await fetch(`http://localhost:3000/menu/${dish}`);
+                // 備注：檢查回應是否成功（HTTP 狀態碼 200-299）
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                // 備注：將回應轉為 JSON 格式（例如 {name: "Margherita Pizza", price: 12.99, description: "..."}）
+                const data = await response.json();
+                
+                // 備注：檢查回應是否包含錯誤訊息（例如 404 時的 "Sorry, ... is not on the menu!"）
+                if (data.message) {
+                    resultDiv.innerHTML = `<p class="error">${data.message}</p>`;
+                } else {
+                    // 備注：顯示菜品詳細資訊（名稱、價格、描述）
+                    resultDiv.innerHTML = `
+                        <h3>${data.name}</h3>
+                        <p>Price: $${data.price}</p>
+                        <p>Description: ${data.description}</p>
+                    `;
+                }
+            } catch (error) {
+                // 備注：處理網絡錯誤或伺服器錯誤，顯示錯誤訊息
+                resultDiv.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
