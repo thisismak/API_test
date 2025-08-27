@@ -38,36 +38,38 @@
         <option value="burger">Burger</option>
         <option value="salad">Salad</option>
     </select>
-    <!-- 備注：按鈕，點擊後觸發 fetchDish 函數發送信 GET 請求 -->
+    <!-- 備注：按鈕，點擊後觸發 fetchDish 函數，發送 RESTful GET 請求到 API 端點 -->
     <button onclick="fetchDish()">Get Details</button>
-    <!-- 備注：用於顯示後端返回的菜品資訊或錯誤訊息 -->
+    <!-- 備注：用於顯示後端 RESTful API 返回的菜品資訊或錯誤訊息 -->
     <div id="result"></div>
 
     <script>
-        // 備注：定義非同步函數 fetchDish，負責發送 GET 請求並處理回應
+        // 備注：定義非同步函數 fetchDish，負責發送 RESTful GET 請求並處理 API 回應
         async function fetchDish() {
-            // 備注：獲取用戶選擇的菜品（例如 "pizza"）
+            // 備注：獲取用戶選擇的菜品（例如 "pizza"），用於構造 RESTful API 的資源 URI
             const dish = document.getElementById('dishSelect').value;
-            // 備注：獲取顯示結果的 div 元素
+            // 備注：獲取顯示結果的 div 元素，用於渲染 API 回應
             const resultDiv = document.getElementById('result');
-            // 備注：顯示「Loading...」提示，表示正在請求資料
+            // 備注：顯示「Loading...」提示，表示正在向 RESTful API 請求資料
             resultDiv.innerHTML = 'Loading...';
 
             try {
-                // 備注：使用 fetch API 發送 GET 請求到後端，例如 http://localhost:3000/menu/pizza
+                // 備注：使用 fetch API 發送 RESTful GET 請求到後端，例如 http://localhost:3000/menu/pizza
+                // RESTful 特徵：使用 HTTP GET 方法，URI 表示具體資源（菜品）
                 const response = await fetch(`http://localhost:3000/menu/${dish}`);
-                // 備注：檢查回應是否成功（HTTP 狀態碼 200-299）
+                // 備注：檢查回應是否成功（HTTP 狀態碼 200-299），符合 RESTful API 的狀態碼規範
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
-                // 備注：將回應轉為 JSON 格式（例如 {name: "Margherita Pizza", price: 12.99, description: "..."}）
+                // 備注：將 RESTful API 的 JSON 回應轉為 JavaScript 物件，例如 {name: "Margherita Pizza", price: 12.99, description: "..."}
                 const data = await response.json();
                 
                 // 備注：檢查回應是否包含錯誤訊息（例如 404 時的 "Sorry, ... is not on the menu!"）
+                // RESTful 特徵：後端使用 404 狀態碼表示資源不存在，返回 JSON 錯誤訊息
                 if (data.message) {
                     resultDiv.innerHTML = `<p class="error">${data.message}</p>`;
                 } else {
-                    // 備注：顯示菜品詳細資訊（名稱、價格、描述）
+                    // 備注：顯示菜品詳細資訊（名稱、價格、描述），來自 RESTful API 的 JSON 回應
                     resultDiv.innerHTML = `
                         <h3>${data.name}</h3>
                         <p>Price: $${data.price}</p>
@@ -75,7 +77,7 @@
                     `;
                 }
             } catch (error) {
-                // 備注：處理網絡錯誤或伺服器錯誤，顯示錯誤訊息
+                // 備注：處理網絡錯誤或伺服器錯誤（例如無法連接到 API），顯示錯誤訊息
                 resultDiv.innerHTML = `<p class="error">Error: ${error.message}</p>`;
             }
         }
